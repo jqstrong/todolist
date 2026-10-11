@@ -12,9 +12,12 @@
 
 到 [Releases](https://github.com/jqstrong/todolist/releases) 下载：
 
-- `稿纸_x.y.z_x64-setup.exe` —— 安装版（按当前用户安装，不需要管理员权限），
-  装完在开始菜单里；卸载走「设置 → 应用」。
-- `稿纸-x.y.z-便携版-x64.zip` —— 解压即用，不写注册表。
+- `Gaozhi_x.y.z_x64-setup.exe` —— 安装版。按当前用户安装，**不需要管理员权限**，
+  装完在开始菜单里显示为「稿纸」；卸载走「设置 → 应用」。
+- `Gaozhi-x.y.z-portable-x64.zip` —— 解压即用，不写注册表。
+
+（附件名是 ASCII 的：GitHub 会把 release 附件名里的中文清洗掉，所以安装包和便携版用拼音命名，
+产品名本身仍是「稿纸」。）
 
 安装包没有代码签名，Windows SmartScreen 第一次会提示一次「更多信息 → 仍要运行」。
 装好后常驻托盘，按 `Ctrl + Alt + Space` 召唤。要求 Windows 10/11（自带 WebView2）。
