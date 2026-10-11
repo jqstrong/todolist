@@ -6,6 +6,19 @@
 界面是黑白的，只有一种颜色——靛蓝，而且只用在「完成」上：方框被填满、勾被描出来、
 一道笔迹划过那行字。设计说明与取舍记录见 [`docs/design-notes.md`](docs/design-notes.md)。
 
+![清单](design/shots/01-清单.png)
+
+## 安装
+
+到 [Releases](https://github.com/jqstrong/todolist/releases) 下载：
+
+- `稿纸_x.y.z_x64-setup.exe` —— 安装版（按当前用户安装，不需要管理员权限），
+  装完在开始菜单里；卸载走「设置 → 应用」。
+- `稿纸-x.y.z-便携版-x64.zip` —— 解压即用，不写注册表。
+
+安装包没有代码签名，Windows SmartScreen 第一次会提示一次「更多信息 → 仍要运行」。
+装好后常驻托盘，按 `Ctrl + Alt + Space` 召唤。要求 Windows 10/11（自带 WebView2）。
+
 ## 用法
 
 面板出现时光标已经在召唤行里，全流程不用碰鼠标：
