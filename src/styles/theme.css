@@ -1,0 +1,258 @@
+/* ==========================================================================
+   稿纸 2.0 —— 设计令牌与基础层
+   骨架还是「稿纸」：左边一栏放状态、右边一栏放内容，完成是划过去的一道笔迹。
+   皮肤换成现代的：干净表面、无衬线变量字体、颜色只用在有意义的地方。
+   说明见 docs/design-notes.md
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* 面 */
+  --bg: #fafafb;
+  --raise: #ffffff;
+  --hover: #f1f2f5;
+  --field: #ffffff;
+
+  /* 墨 */
+  --ink: #0f1319;
+  --ink-2: #565e6b;
+  --ink-3: #7b8492;
+  --line: #e8eaee;
+  --line-strong: #d9dce3;
+  --mark-line: #bcc2cc;
+
+  /* 唯一有颜色的东西：完成的墨。其余全是黑白灰。 */
+  --accent: #2e56e0;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(46, 86, 224, 0.12);
+
+  /* 朱砂：只留给删除 */
+  --seal: #e5484d;
+
+  /* 抬起来的面板 */
+  --panel-shadow:
+    0 0 0 1px rgba(16, 20, 28, 0.055),
+    0 18px 40px -18px rgba(16, 20, 28, 0.34),
+    0 4px 12px -6px rgba(16, 20, 28, 0.1);
+  --raise-shadow: 0 1px 2px rgba(16, 20, 28, 0.05), 0 0 0 1px rgba(16, 20, 28, 0.045);
+  --thumb-shadow: 0 1px 2px rgba(16, 20, 28, 0.2);
+
+  /* 字：一个家族，靠字重和字号拉层级 */
+  --font-ui:
+    "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", "Noto Sans SC",
+    "Microsoft YaHei UI", system-ui, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", "Noto Sans SC",
+    system-ui, sans-serif;
+
+  --t-capture: 16px;
+  --t-task: 15px;
+  --t-label: 14px;
+  --t-note: 12px;
+  --t-chrome: 12px;
+  --t-micro: 11.5px;
+
+  /* 形 */
+  --r-panel: 16px;
+  --r-field: 12px;
+  --r-row: 10px;
+  --r-mark: 5px;
+  --r-btn: 8px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:root[data-theme="night"] {
+  color-scheme: dark;
+
+  --bg: #0f1114;
+  --raise: #17191d;
+  --hover: #1e2127;
+  --field: #17191d;
+
+  --ink: #e9ebef;
+  --ink-2: #a2a9b4;
+  --ink-3: #7d8590;
+  --line: #23262c;
+  --line-strong: #31353d;
+  --mark-line: #3d434c;
+
+  --accent: #7c93ff;
+  --accent-ink: #0f1114;
+  --accent-soft: rgba(124, 147, 255, 0.16);
+
+  --seal: #ff6369;
+
+  --panel-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 18px 40px -18px rgba(0, 0, 0, 0.75),
+    0 4px 12px -6px rgba(0, 0, 0, 0.5);
+  --raise-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.055);
+  --thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------------------------------------------------------------- 基础 */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* 面板四边留出阴影的位置；窗口本身是透明的 */
+  padding: 20px 20px 30px;
+  overflow: hidden;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--t-task);
+  font-weight: 400;
+  line-height: 1.5;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  cursor: default;
+  user-select: none;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+/* 键盘用户始终看得见焦点落在哪 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- 面板 */
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--r-panel);
+  background: var(--bg);
+  box-shadow: var(--panel-shadow);
+}
+
+@keyframes summon {
+  from {
+    opacity: 0;
+    transform: scale(0.985) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* backwards：动画开始前先摆到起始帧，避免被召唤的那一刻闪一下终态；
+   动画结束后自然回到常态，因此即使动效没有跑完也不会留下半透明的面板。 */
+.panel.is-summoning {
+  animation: summon 150ms var(--ease) backwards;
+}
+
+/* 顶部一行的字：日期、计数、快捷键 */
+.chrome {
+  font-family: var(--font-display);
+  font-size: var(--t-chrome);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.005em;
+  color: var(--ink-3);
+}
+
+/* 图标按钮 */
+.iconbtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-btn);
+  color: var(--ink-3);
+  transition:
+    background-color 110ms linear,
+    color 110ms linear;
+}
+
+.iconbtn:hover {
+  background: var(--hover);
+  color: var(--ink);
+}
+
+.iconbtn:active {
+  background: var(--line);
+}
+
+/* 细滚动条：不滚动时不打扰 */
+.scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 6px;
+  background-color: var(--line-strong);
+  background-clip: content-box;
+}
+
+.scroll:not(:hover)::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* 尊重系统的减少动态效果设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

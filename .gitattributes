@@ -1,0 +1,7 @@
+﻿* text=auto
+
+# 图片一律按二进制处理，避免行尾转换破坏文件
+*.png binary
+*.ico binary
+*.icns binary
+*.jpg binary
